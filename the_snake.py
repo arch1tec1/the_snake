@@ -1,5 +1,6 @@
-import pygame
 from random import randint
+
+import pygame
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -116,7 +117,7 @@ class Snake(GameObject):
     def bump_borders(new_position):
         """Проверка на врезание в границы"""
         x, y = new_position[0], new_position[1]
-        if x not in range(0, 641) or y not in range(0, 481):
+        if x not in range(641) or y not in range(481):
             return True
 
     def bump_yourself(self, new_position):
@@ -151,12 +152,12 @@ class Snake(GameObject):
                     one_cord = position[coord] + delta_position[coord]
                     new_position.append(one_cord)
                 if self.bump_borders(new_position):
-                    print('Вы врезались в границу игровой зоны!')
+                    # Игрок врезался в границу игровой зоны
                     self.clean_board()
                     self.reset()
                     break
                 elif self.bump_yourself(new_position):
-                    print('Вы врезались в себя!')
+                    # Игрок врезался в себя
                     self.clean_board()
                     self.reset()
                     break
