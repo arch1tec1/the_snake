@@ -58,8 +58,7 @@ class Apple(GameObject):
     @staticmethod
     def randomize_position():
         """Генерация случайной позции Яблока в пределах Игрового поля"""
-        position = (randint(2, 31) * 20, randint(2, 23) * 20)
-        return position
+        return (randint(2, 31) * 20, randint(2, 23) * 20)
 
     def __init__(self):
         super().__init__()
