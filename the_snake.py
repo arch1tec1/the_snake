@@ -44,7 +44,7 @@ clock = pg.time.Clock()
 class GameObject:
     """Базовый класс для объектов игры Змейка"""
 
-    def __init__(self, body_color):
+    def __init__(self, body_color=BOARD_BACKGROUND_COLOR):
         self.position = CENTER_SCREEN
         self.body_color = body_color
         self.border_color = BORDER_COLOR
