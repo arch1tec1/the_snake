@@ -44,38 +44,48 @@ clock = pg.time.Clock()
 class GameObject:
     """Базовый класс для объектов игры Змейка"""
 
-    def __init__(self, body_color=BOARD_BACKGROUND_COLOR):
+    def __init__(
+        self,
+        body_color=BOARD_BACKGROUND_COLOR,
+        border_color=BORDER_COLOR
+    ):
         self.position = CENTER_SCREEN
         self.body_color = body_color
-        self.border_color = BORDER_COLOR
+        self.border_color = border_color
 
     def draw(self):
         """Отрисовка объектов на игровом поле"""
         raise NotImplementedError(f'Не реализован метод "{self.draw.__doc__}"')
 
-    def draw_cell(self, position, body_color=None):
+    def draw_cell(self, position):
         """Отрисовка одной ячейки"""
         rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
-        if body_color:
-            pg.draw.rect(screen, body_color, rect)
-        else:
-            pg.draw.rect(screen, self.body_color, rect)
-            pg.draw.rect(screen, self.border_color, rect, 1)
+        pg.draw.rect(screen, self.body_color, rect)
+        pg.draw.rect(screen, self.border_color, rect, 1)
+
+    def clean_cell(self, position):
+        """Затирание ячейки"""
+        rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
+        pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, rect)
 
 
 class Apple(GameObject):
     """Класс для объекта Яблоко"""
 
-    def __init__(self, body_color=APPLE_COLOR, busy_positions=CENTER_SCREEN):
-        super().__init__(body_color)
+    def __init__(
+        self, body_color=APPLE_COLOR,
+        border_color=APPLE_COLOR,
+        busy_positions=(CENTER_SCREEN, )
+    ):
+        super().__init__(body_color, border_color)
         self.randomize_position(busy_positions)
 
     def randomize_position(self, busy_positions):
         """Генерация случайной позции Яблока в пределах Игрового поля"""
         while True:
             self.position = (
-                randint(2, GRID_WIDTH - 1) * 20,
-                randint(2, GRID_HEIGHT - 1) * 20
+                randint(2, GRID_WIDTH - 1) * GRID_SIZE,
+                randint(2, GRID_HEIGHT - 1) * GRID_SIZE
             )
 
             if self.position not in busy_positions:
@@ -89,8 +99,8 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Класс для объекта Змейка"""
 
-    def __init__(self, body_color=SNAKE_COLOR):
-        super().__init__(body_color)
+    def __init__(self, body_color=SNAKE_COLOR, border_color=BORDER_COLOR):
+        super().__init__(body_color, border_color)
         self.length = 1
         self.positions = [self.position]
         self.last = self.positions[-1]
@@ -117,29 +127,22 @@ class Snake(GameObject):
 
         # Затирание последнего сегмента
         if self.last:
-            self.draw_cell(self.last, BOARD_BACKGROUND_COLOR)
+            self.clean_cell(self.last)
 
     def move(self):
         """Обновление координат тела змейки"""
-        self.last = self.positions[-1]
-        delta_position = (self.direction[0] * 20, self.direction[1] * 20)
-        for indx, position in enumerate(self.positions):
-            if indx == 0:
-                new_position = [
-                    position[0] + delta_position[0],
-                    position[1] + delta_position[1]
-                ]
+        x, y = self.direction
+        x_head, y_head = self.get_head_position()
 
-                if new_position[0] not in range(SCREEN_WIDTH):
-                    new_position[0] = new_position[0] % SCREEN_WIDTH
-                if new_position[1] not in range(SCREEN_HEIGHT):
-                    new_position[1] = new_position[1] % SCREEN_HEIGHT
+        new_x, new_y = (
+            (x_head + x * GRID_SIZE) % SCREEN_WIDTH,
+            (y_head + y * GRID_SIZE) % SCREEN_HEIGHT
+        )
+        self.positions.insert(0, (new_x, new_y))
 
-                last_positions = self.positions.copy()
-                last_positions.insert(0, 0)
-                self.positions[indx] = tuple(new_position)
-            else:
-                self.positions[indx] = last_positions[indx]
+        if len(self.positions) > self.length:
+            self.last = self.positions[-1]
+            del self.positions[-1]
 
     def reset(self):
         """Сброс змейки до исходного состояния"""
@@ -174,7 +177,6 @@ def main():
     # Тут нужно создать экземпляры классов.
     snake = Snake()
     apple = Apple()
-    snake.draw()
 
     while True:
         clock.tick(5)
@@ -183,13 +185,14 @@ def main():
         snake.move()
 
         if snake.get_head_position() == apple.position:
-            snake.positions.insert(-1, snake.last)
             snake.length += 1
+            snake.move()
             apple.randomize_position(snake.positions)
 
-        if snake.get_head_position() in snake.positions[1:]:
+        elif snake.get_head_position() in snake.positions[1:]:
             snake.reset()
             screen.fill(BOARD_BACKGROUND_COLOR)
+            apple.randomize_position(snake.positions)
 
         snake.draw()
         apple.draw()
