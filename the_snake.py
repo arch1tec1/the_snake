@@ -141,8 +141,7 @@ class Snake(GameObject):
         self.positions.insert(0, (new_x, new_y))
 
         if len(self.positions) > self.length:
-            self.last = self.positions[-1]
-            del self.positions[-1]
+            self.last = self.positions.pop(-1)
 
     def reset(self):
         """Сброс змейки до исходного состояния"""
@@ -186,7 +185,6 @@ def main():
 
         if snake.get_head_position() == apple.position:
             snake.length += 1
-            snake.move()
             apple.randomize_position(snake.positions)
 
         elif snake.get_head_position() in snake.positions[1:]:
