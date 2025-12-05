@@ -2,6 +2,7 @@ from random import choice, randint
 
 import pygame as pg
 
+
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
@@ -34,7 +35,7 @@ SPEED = 20
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
 # Заголовок окна игрового поля:
-pg.display.set_caption('Змейка')
+pg.display.set_caption("Змейка")
 
 # Настройка времени:
 clock = pg.time.Clock()
@@ -45,9 +46,7 @@ class GameObject:
     """Базовый класс для объектов игры Змейка"""
 
     def __init__(
-        self,
-        body_color=BOARD_BACKGROUND_COLOR,
-        border_color=BORDER_COLOR
+        self, body_color=BOARD_BACKGROUND_COLOR, border_color=BORDER_COLOR
     ):
         self.position = CENTER_SCREEN
         self.body_color = body_color
@@ -73,9 +72,10 @@ class Apple(GameObject):
     """Класс для объекта Яблоко"""
 
     def __init__(
-        self, body_color=APPLE_COLOR,
+        self,
+        body_color=APPLE_COLOR,
         border_color=APPLE_COLOR,
-        busy_positions=(CENTER_SCREEN, )
+        busy_positions=(CENTER_SCREEN,),
     ):
         super().__init__(body_color, border_color)
         self.randomize_position(busy_positions)
@@ -85,7 +85,7 @@ class Apple(GameObject):
         while True:
             self.position = (
                 randint(2, GRID_WIDTH - 1) * GRID_SIZE,
-                randint(2, GRID_HEIGHT - 1) * GRID_SIZE
+                randint(2, GRID_HEIGHT - 1) * GRID_SIZE,
             )
 
             if self.position not in busy_positions:
@@ -136,7 +136,7 @@ class Snake(GameObject):
 
         new_x, new_y = (
             (x_head + x * GRID_SIZE) % SCREEN_WIDTH,
-            (y_head + y * GRID_SIZE) % SCREEN_HEIGHT
+            (y_head + y * GRID_SIZE) % SCREEN_HEIGHT,
         )
         self.positions.insert(0, (new_x, new_y))
 
@@ -197,5 +197,5 @@ def main():
         pg.display.update()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
